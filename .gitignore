@@ -1,0 +1,5 @@
+# Never publish exam content, answers or the real practical scenarios
+answer-key.json
+js/demo-questions.js
+# Backend code (holds the real practical scenario list) — it lives in Apps Script, not on the public website
+apps-script/
