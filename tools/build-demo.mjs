@@ -1,6 +1,7 @@
 // Builds the DEMO website from this project:  node tools/build-demo.mjs [output folder]
 // - same pages and design as the real app
-// - DEMO_SITE = true and no Google connection (SCRIPT_URL emptied) → everything stays in the visitor's browser
+// - DEMO_SITE = true → registrations and practice scores stay in the visitor's browser (never sent to Google).
+//   Only READ-ONLY calls reach Google: checking the evaluator PIN and loading that evaluator's station scenarios.
 // - never copies the backend code or the private question file (js/demo-questions.js)
 import fs from "fs";
 import path from "path";
@@ -27,25 +28,35 @@ COPY.forEach(copy);
 const cfgPath = path.join(out, "js", "config.js");
 let cfg = fs.readFileSync(cfgPath, "utf8");
 const before = cfg;
-cfg = cfg.replace(/export const DEMO_SITE = false;/, "export const DEMO_SITE = true;")
-         .replace(/export const SCRIPT_URL\s*=\s*"[^"]*";/,'export const SCRIPT_URL = ""; // demo website: not connected to Google');
-if (cfg === before || !/DEMO_SITE = true/.test(cfg) || !/SCRIPT_URL = ""/.test(cfg)) throw new Error("Could not switch config.js to demo mode");
+cfg = cfg.replace(/export const DEMO_SITE = false;/, "export const DEMO_SITE = true;");
+if (cfg === before || !/DEMO_SITE = true/.test(cfg)) throw new Error("Could not switch config.js to demo mode");
 fs.writeFileSync(cfgPath, cfg);
 
 // safety checks: nothing private may end up in the demo folder
 const walk = (d) => fs.readdirSync(d, { withFileTypes: true }).flatMap(e => e.name === ".git" ? [] : e.isDirectory() ? walk(path.join(d, e.name)) : [path.join(d, e.name)]);
 const files = walk(out);
 if (files.some(f => /demo-questions\.js$|Code\.gs$/.test(f))) throw new Error("Private file copied into the demo!");
-if (files.some(f => /\.(js|html)$/.test(f) && /script\.google\.com\/macros/.test(fs.readFileSync(f, "utf8")))) throw new Error("Google backend address found in the demo!");
+// the backend address may only appear in js/config.js (used READ-ONLY by js/demo-backend.js for the evaluator review)
+if (files.some(f => /\.(js|html)$/.test(f) && !/[\\/]js[\\/]config\.js$/.test(f) && /script\.google\.com\/macros/.test(fs.readFileSync(f, "utf8")))) throw new Error("Google backend address found outside config.js!");
+// the real practical scenarios must never be copied into the demo code
+const gsPath = path.join(root, "apps-script", "Code.gs");
+if (fs.existsSync(gsPath)) {
+  const table = (fs.readFileSync(gsPath, "utf8").match(/const DEFAULT_PRACTICAL = \[[\s\S]*?\n\];/) || [""])[0];
+  if (!table) throw new Error("Could not find DEFAULT_PRACTICAL in Code.gs for the scenario check");
+  const real = [...table.matchAll(/\[\s*"[^"]+"\s*,\s*"[^"]*"\s*,\s*"([^"]{8,})"/g)].map(m => m[1]);
+  const hit = files.filter(f => /\.(js|html|md)$/.test(f) && real.some(r => fs.readFileSync(f, "utf8").includes(r)));
+  if (hit.length) throw new Error("Real scenario text found in the demo: " + hit.join(", "));
+}
 
 fs.writeFileSync(path.join(out, "README.md"),
 `# 2026 Vendor's Technicians Evaluation: DEMO website
 
-Practice copy of the evaluation app. **It is not connected to Google.** Everything a visitor does is saved only in
-their own browser. The Theoretical exam's sign-in page can be viewed, but **starting the exam is turned off**
+Practice copy of the evaluation app. **Nothing is saved to Google:** registrations and practice scores stay only in
+the visitor's own browser. The Theoretical exam's sign-in page can be viewed, but **starting the exam is turned off**
 (the real questions are never published).
 
-- Evaluator PIN for the demo: **2468**
+- Practical: evaluators log in with their **real evaluator PIN** to review the real scenarios of their own station.
+  The scenarios are loaded read-only from the evaluation backend after the PIN is checked; they are not in this code.
 - To try the afternoon session in the morning, add \`?session=PM\` to a page address (e.g. \`exam.html?session=PM\`).
 - "Start over" in the yellow banner clears this browser's demo data.
 
