@@ -1,7 +1,7 @@
 // Builds the DEMO website from this project:  node tools/build-demo.mjs [output folder]
 // - same pages and design as the real app
 // - DEMO_SITE = true → registrations and practice scores stay in the visitor's browser (never sent to Google).
-//   Only READ-ONLY calls reach Google: checking the evaluator PIN and loading that evaluator's station scenarios.
+//   Only READ-ONLY calls reach Google: checking the demo PIN and loading that evaluator's station scenarios.
 // - never copies the backend code or the private question file (js/demo-questions.js)
 import fs from "fs";
 import path from "path";
@@ -55,7 +55,7 @@ Practice copy of the evaluation app. **Nothing is saved to Google:** registratio
 the visitor's own browser. The Theoretical exam's sign-in page can be viewed, but **starting the exam is turned off**
 (the real questions are never published).
 
-- Practical: evaluators log in with their **real evaluator PIN** to review the real scenarios of their own station.
+- Practical: evaluators log in with the **demo PIN** (given to evaluators only) to review the real scenarios of their own station.
   The scenarios are loaded read-only from the evaluation backend after the PIN is checked; they are not in this code.
 - To try the afternoon session in the morning, add \`?session=PM\` to a page address (e.g. \`exam.html?session=PM\`).
 - "Start over" in the yellow banner clears this browser's demo data.
