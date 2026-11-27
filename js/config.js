@@ -19,7 +19,7 @@ export const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxbtzd_Qe_gqe
 export const FEEDBACK_URL = "https://script.google.com/macros/s/AKfycbwdA8oNo0v8NsJHyaQobiycm7ysxHz56yFMcvolgiDnbLSjLg2Pty2PmogK8lDV437j/exec";
 // MAINTENANCE NOTICE: until this moment (Philippine time) the real website shows a "under maintenance" cover on every page.
 // It switches off by itself at that time. Staff can still use the site by opening any page once with ?staff at the end.
-export const MAINTENANCE = { until: "2026-11-28T03:00:00+08:00", backBy: "3:00 AM" };
+export const MAINTENANCE = { until: "", backBy: "" }; // off. To show it again: { until: "2026-11-30T03:00:00+08:00", backBy: "3:00 AM" }
 
 // LIVE MONITORING, daily progress: how many people registered on each FINISHED evaluation day, in order.
 // The live list comes in registration order (top to bottom of the Registration tab), so the first 38 are Day 1, and so on.
