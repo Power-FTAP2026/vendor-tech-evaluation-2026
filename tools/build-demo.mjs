@@ -9,7 +9,7 @@ import { fileURLToPath } from "url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const out = path.resolve(process.argv[2] || path.join(root, "..", "vendor-tech-evaluation-2026-demo"));
-const COPY = ["index.html", "register.html", "exam.html", "practical.html", "admin.html", "feedback.html", "manifest.webmanifest", ".nojekyll", "css", "assets", "js"];
+const COPY = ["index.html", "monitor.html", "register.html", "exam.html", "practical.html", "admin.html", "feedback.html", "manifest.webmanifest", ".nojekyll", "css", "assets", "js"];
 const NEVER = new Set(["js/demo-questions.js"]);
 
 fs.mkdirSync(out, { recursive: true });
