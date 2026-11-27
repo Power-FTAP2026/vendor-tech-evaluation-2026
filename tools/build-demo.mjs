@@ -9,7 +9,7 @@ import { fileURLToPath } from "url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const out = path.resolve(process.argv[2] || path.join(root, "..", "vendor-tech-evaluation-2026-demo"));
-const COPY = ["index.html", "register.html", "exam.html", "practical.html", "admin.html", "manifest.webmanifest", ".nojekyll", "css", "assets", "js"];
+const COPY = ["index.html", "register.html", "exam.html", "practical.html", "admin.html", "feedback.html", "manifest.webmanifest", ".nojekyll", "css", "assets", "js"];
 const NEVER = new Set(["js/demo-questions.js"]);
 
 fs.mkdirSync(out, { recursive: true });
@@ -28,8 +28,10 @@ COPY.forEach(copy);
 const cfgPath = path.join(out, "js", "config.js");
 let cfg = fs.readFileSync(cfgPath, "utf8");
 const before = cfg;
-cfg = cfg.replace(/export const DEMO_SITE = false;/, "export const DEMO_SITE = true;");
+cfg = cfg.replace(/export const DEMO_SITE = false;/, "export const DEMO_SITE = true;")
+         .replace(/export const FEEDBACK_URL\s*=\s*"[^"]*";/, 'export const FEEDBACK_URL = ""; // demo website: feedback is never saved');
 if (cfg === before || !/DEMO_SITE = true/.test(cfg)) throw new Error("Could not switch config.js to demo mode");
+if (!/export const FEEDBACK_URL = "";/.test(cfg)) throw new Error("Could not blank FEEDBACK_URL for the demo");
 fs.writeFileSync(cfgPath, cfg);
 
 // safety checks: nothing private may end up in the demo folder
